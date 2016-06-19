@@ -98,7 +98,7 @@ add)
 		checkip
 	fi
 
-	echo "Connecting to the loadbalancers:"
+	echo "Connecting to the firewalls:"
 
 	for server in $servers; do
 		echo -n "${server}: "
@@ -124,7 +124,7 @@ del)
 	validate
 	ipfilter
 
-	echo "Connecting to the loadbalancers:"
+	echo "Connecting to the firewalls:"
 
 	for server in $servers; do
 		echo -n "${server}: "
@@ -155,7 +155,7 @@ del)
 find)
 	ipfilter
 
-	echo "Connecting to the loadbalancers:"
+	echo "Connecting to the firewalls:"
 
 	for server in $servers; do
 		echo -n "${server}: "
@@ -178,7 +178,7 @@ find)
 findip)
 	validate
 
-        echo "Connecting to the loadbalancers:"
+        echo "Connecting to the firewalls:"
 
 	ip=$iprange
 
@@ -204,7 +204,7 @@ findip)
         ;;
 
 last)
-	echo "Connecting to the loadbalancers:"
+	echo "Connecting to the firewalls:"
 
 	lines=$((iprange + 2))
 
