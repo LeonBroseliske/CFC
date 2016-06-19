@@ -34,27 +34,28 @@ add:
 
 	cfc.sh add n.n.n.n/NN '<optional comment>'
 
-	Adds the given IP(range) to the firewalls with the configured action for all traffic from that source.
-	Makes a comment by default with the current date, you can add an optional comment using single quotes to
-	add a reason or owner of that range as an example. It can also be searched on that comment later on.
+Adds the given IP(range) to the firewalls with the configured action for all traffic from that source. Makes a comment by default with the current date, you can add an optional comment using single quotes to add a reason or owner of that range as an example. It can also be searched on that comment later on.
 
 del:
+
 	cfc.sh del n.n.n.n/NN
 
-	Deletes the given IP(range)/rule from the firewalls
+Deletes the given IP(range)/rule from the firewalls
 
 find:
+
 	cfc.sh find <string>
 
-	Searches the firewalls for the given string (case in-sensitive), this can be some (part) of
-	an IP / range / comment
+Searches the firewalls for the given string (case in-sensitive), this can be some (part) of an IP / range / comment
 
 findip:
+
 	cfc.sh findip n.n.n.n/NN
 
-	Searches the firewalls if the given IP(range) is already part of an added rule,
-	might be a bit slow on large firewalls (~25 sec. for searching 500 ip ranges per server)
+Searches the firewalls if the given IP(range) is already part of an added rule, might be a bit slow on large firewalls (~25 sec. for searching 500 ip ranges per server)
 
-last:	cfc.sh last <nr_of_most_recent_rules>
+last:
 
-	Shows the last <n> entries added to the firewalls
+	cfc.sh last <nr_of_most_recent_rules>
+
+Shows the last <n> entries added to the firewalls
