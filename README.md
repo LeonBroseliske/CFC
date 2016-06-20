@@ -20,15 +20,15 @@ The following settings can be set in the script
 * action: sets the action when adding a rule, default: DROP
 * checkaggrbin: path to the checkaggr.py script, default: ./checkaggr.py
 * fwchain: name of the firewall chain to add/del/search, default: INPUT
-* masklimit: max size of the ip ranges that can be blocked, default: /21
-* precheck: check if the ip that is about to be added is already in the firewall, might be a bit slow on large firewalls (~25 sec. for searching 500 ip ranges per server), default: true
+* masklimit: max size of the ip ranges that can be added, default: /21
+* precheck: check if the ip that is about to be added is already in the firewall or part of a larger added range, might be a bit slow on large firewalls (~25 sec. for searching 500 ip ranges per server), default: true
 * protected: ip ranges that are excluded from the 'add' function, usually the ranges owned by the local network, default: "172.16.0.0/12 10.0.0.0/8 192.168.0.0/16"
 * pythonbin: location of the used Python binary, default: /usr/bin/python3
-* servers: servers to connect to with ssh, default: "lvs01.example.com lvs02.example.com lvs03.example.com lvs04.example.com"
+* servers: servers that the firewalls run on that will be controlled through ssh, default: "lvs01.example.com lvs02.example.com lvs03.example.com lvs04.example.com"
 
 ## Usage
 
-When entering IPs/ranges with the following commands, do so in CIDR notation, this is validated and won't accept anything else.
+When entering IPs/ranges with the following commands, do so in CIDR notation, this gets validated and won't accept anything else.
 
 add:
 
@@ -46,7 +46,7 @@ find:
 
 	cfc.sh find <string>
 
-Searches the firewalls for the given string (case in-sensitive), this can be some (part) of an IP / range / comment
+Searches the firewalls for the given string (case in-sensitive), this can be (part of) an IP / range / comment
 
 findip:
 
