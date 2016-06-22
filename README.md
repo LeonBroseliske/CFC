@@ -15,10 +15,13 @@ Since this script connects to the given servers with ssh, such access must be pr
 
 ## Settings
 
-The following settings can be set in the script
+Copy the example config from cfc.cfg-example to cfc.cfg the first time.
+
+The following settings can be set in the config file:
 
 * action: sets the action when adding a rule, default: DROP
 * checkaggrbin: path to the checkaggr.py script, default: ./checkaggr.py
+* date: set the date format for the firewall comments, default: $(date +%d%m%Y) -> 22062016
 * fwchain: name of the firewall chain to add/del/search, default: INPUT
 * masklimit: max size of the ip ranges that can be added, default: /21
 * precheck: check if the ip that is about to be added is already in the firewall or part of a larger added range, might be a bit slow on large firewalls (~25 sec. for searching 500 ip ranges per server), default: true

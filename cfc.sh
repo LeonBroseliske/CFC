@@ -16,20 +16,11 @@ if [ "$1" = "" ] || [ "$2" = "" ]; then
 fi
 
 # Settings
-action=DROP
-checkaggrbin=./checkaggr.py
-fwchain=INPUT
-masklimit=21
-precheck=true
-protected="172.16.0.0/12 10.0.0.0/8 192.168.0.0/16"
-pythonbin=/usr/bin/python3
-servers="lvs01.example.com lvs02.example.com lvs03.example.com lvs04.example.com"
-
+source cfc.cfg
 
 mode=$1
 iprange=$2
 comment=$3
-date=$(date +%d%m%Y)
 cidrmask=`echo $iprange | grep -oE '[^/]+' | tail -1`
 
 
