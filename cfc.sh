@@ -85,7 +85,7 @@ protectedranges () {
 	pip=$iprange
 
 	for protect in $protected; do
-		checkpip=$($pythonbin /usr/local/bin/checkaggr.py $pip $protect)
+		checkpip=$($pythonbin $checkaggrbin $pip $protect)
 
 		if [ ! -z "$checkpip" ]; then
 			echo "$pip is in a protected IP range"
