@@ -1,0 +1,10 @@
+# Settings
+action=DROP
+checkaggrbin=./checkaggr.py
+date=$(date +%d%m%Y)
+fwchain=INPUT
+masklimit=21
+precheck=true
+protected="172.16.0.0/12 10.0.0.0/8 192.168.0.0/16"
+pythonbin=/usr/bin/python3
+servers="lvs01.example.com lvs02.example.com lvs03.example.com lvs04.example.com"
