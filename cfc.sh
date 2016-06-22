@@ -41,7 +41,7 @@ checkip () {
 		sudo ssh -n ${server} "iptables -nvL ${fwchain}" | tail -n+3 | awk {'print$8'} | grep -v 0.0.0.0/0 | grep -v ! | while read blockediprange;
 
 		do
-			checkaggr=$($pythonbin -q $checkaggrbin $ip $blockediprange 2> /dev/null)
+			checkaggr=$($pythonbin -q $checkaggrbin $ip $blockediprange 2>/dev/null)
 
 			if [ ! -z "$checkaggr" ]; then
 				echo "    $ip is already added in $blockediprange"
@@ -55,11 +55,33 @@ checkip () {
 	done
 }
 
+checkpython () {
+
+	if [ ! -f ${pythonbin} ]; then
+		echo "${pythonbin} is missing, please install Python first"
+		exit 1
+	fi
+
+	$pythonbin -c "import netaddr" >/dev/null 2>&1
+	pmodule=$?
+
+	if [[ $pmodule -ne 0 ]]; then
+		echo "Python netaddr module is missing"
+		exit 1
+	fi
+
+	if [ ! -f ${checkaggrbin} ]; then
+		echo "checkaggr.py is missing, please check that it is located here as configured: ${checkaggrbin}"
+		exit 1
+	fi
+}
+
 ipfilter () {
 	ipfiltered=`echo "$iprange" | sed -r 's/\/32//'`
 }
 
 protectedranges () {
+	checkpython
 	pip=$iprange
 
 	for protect in $protected; do
@@ -95,6 +117,7 @@ add)
 	protectedranges
 
 	if [ "$precheck" = "true" ]; then
+		checkpython
 		checkip
 	fi
 
@@ -176,6 +199,7 @@ find)
 	;;
 
 findip)
+	checkpython
 	validate
 
         echo "Connecting to the firewalls:"
