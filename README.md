@@ -7,7 +7,7 @@ Tested on Debian Jessie, but should work on any distro.
 
 ## Prerequisites
 
-To use the 'precheck' and 'findip' functions, you need the 'netaddr' python module installed.
+To use the 'precheck', 'protected' and 'findip' functions, you need the 'netaddr' python module installed.
 
 Debian: apt-get install python3-netaddr
 
@@ -25,7 +25,8 @@ The following settings can be set in the config file:
 * fwchain: name of the firewall chain to add/del/search, default: INPUT
 * masklimit: max size of the ip ranges that can be added, default: /21
 * precheck: check if the ip that is about to be added is already in the firewall or part of a larger added range, might be a bit slow on large firewalls (~25 sec. for searching 500 ip ranges per server), default: true
-* protected: ip ranges that are excluded from the 'add' function, usually the ranges owned by the local network, default: "172.16.0.0/12 10.0.0.0/8 192.168.0.0/16"
+* protected: enable the added protected ranges, default: true
+* protectedranges: ip ranges that are excluded from the 'add' function, usually the ranges owned by the local network, default: "172.16.0.0/12 10.0.0.0/8 192.168.0.0/16"
 * pythonbin: location of the used Python binary, default: /usr/bin/python3
 * servers: servers that the firewalls run on that will be controlled through ssh, default: "lvs01.example.com lvs02.example.com lvs03.example.com lvs04.example.com"
 

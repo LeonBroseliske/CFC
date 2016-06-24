@@ -68,15 +68,16 @@ checkpython () {
 }
 
 ipfilter () {
+
 	ipfiltered=`echo "$iprange" | sed -r 's/\/32//'`
 }
 
 protectedranges () {
-	checkpython
+
 	pip=$iprange
 
-	for protect in $protected; do
-		checkpip=$($pythonbin $checkaggrbin $pip $protect)
+	for protectrange in $protectedranges; do
+		checkpip=$($pythonbin $checkaggrbin $pip $protectrange)
 
 		if [ ! -z "$checkpip" ]; then
 			echo "$pip is in a protected IP range"
@@ -86,6 +87,7 @@ protectedranges () {
 }
 
 safetylimit () {
+
 	if [[ $cidrmask -lt $masklimit ]]; then
 		echo "The range you want to add exceeds the current limit - a /${masklimit} is max allowed";
 		exit 1
@@ -93,6 +95,7 @@ safetylimit () {
 }
 
 validate ()  {
+
 	if [[ ! $iprange =~ ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$ ]]; then
 		echo "Invalid IPv4 address with(out) CIDR mask. Example: 8.8.8.8/32";
 		exit 1
@@ -105,11 +108,15 @@ case "$1" in
 add)
 	validate
 	safetylimit
-	protectedranges
 
 	if [ "$precheck" = "true" ]; then
 		checkpython
 		checkip
+	fi
+
+	if [ "$protected" = "true" ]; then
+		checkpython
+		protectedranges
 	fi
 
 	echo "Connecting to the firewalls:"
