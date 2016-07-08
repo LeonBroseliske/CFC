@@ -1,7 +1,9 @@
 ## Centralized Firewall Control script
 
 Centralized firewall control provides a centralized way to manage the firewall on multiple servers or loadbalancers running iptables. This way you can quickly allow/block/del/search abuse ranges etc. with one command on several servers.
-It accesses those servers through ssh. 
+It accesses those servers through ssh.
+
+It supports both IPv4 and IPv6.
 
 Tested on Debian Jessie, but should work on any distro.
 
@@ -30,6 +32,8 @@ The following settings can be set in the config file:
 * pythonbin: location of the used Python binary, default: /usr/bin/python3
 * servers: servers that the firewalls run on that will be controlled through ssh, default: "lvs01.example.com lvs02.example.com lvs03.example.com lvs04.example.com"
 
+* The IPv6 functions are marked with the '6' suffix
+
 ## Usage
 
 When entering IPs/ranges with the following commands, do so in CIDR notation, this gets validated and won't accept anything else.
@@ -37,29 +41,34 @@ When entering IPs/ranges with the following commands, do so in CIDR notation, th
 add:
 
 	cfc.sh add n.n.n.n/NN '<optional comment>'
+	cfc6.sh add <IPv6_address_range> '<optional comment>'
 
 Adds the given IP(range) to the firewalls with the configured action for all traffic from that source. Makes a comment by default with the current date, you can add an optional comment using single quotes to add a reason or owner of that range as an example. It can also be searched on that comment later on.
 
 del:
 
 	cfc.sh del n.n.n.n/NN
+	cfc6.sh del <IPv6_address_range>
 
 Deletes the given IP(range)/rule from the firewalls
 
 find:
 
 	cfc.sh find <string>
+	cfc6.sh find <string>
 
 Searches the firewalls for the given string (case in-sensitive), this can be (part of) an IP / range / comment
 
 findip:
 
 	cfc.sh findip n.n.n.n/NN
+	cfc6.sh findip <IPv6_address_range>
 
 Searches the firewalls if the given IP(range) is already part of an added rule, might be a bit slow on large firewalls (~25 sec. for searching 500 ip ranges per server)
 
 last:
 
 	cfc.sh last <nr_of_most_recent_rules>
+	cfc6.sh last <nr_of_most_recent_rules>
 
 Shows the last <n> entries added to the firewalls
