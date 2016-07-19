@@ -16,29 +16,40 @@ if [ "$1" = "" ] || [ "$2" = "" ]; then
 fi
 
 # Settings
-source cfc.cfg
+source ./cfc.cfg
 
 mode=$1
 iprange=$2
 comment=$3
-cidrmask=`echo $iprange | grep -oE '[^/]+' | tail -1`
+cidrmask=$(echo $iprange | grep -oE '[^/]+' | tail -1)
 
 
 checkip () {
 
+	echo "Checking if it's already added"
+
 	ip=$iprange
+	decip=$(echo $ip | sed -r 's/\/.*//')
+	binip=$(convip "${decip}")
 
 	for server in $servers; do
 		sudo ssh -n ${server} "iptables -nvL ${fwchain}" | tail -n+3 | awk {'print$8'} | grep -v 0.0.0.0/0 | grep -v ! | while read blockediprange;
 
 		do
-			checkaggr=$($pythonbin -q $checkaggrbin $ip $blockediprange 2>/dev/null)
+			fblockediprange=$(echo $blockediprange | sed '/\//!s/$/\/32/g')
+			cidrmaskrange=$(echo $fblockediprange | grep -oE '[^/]+' | tail -1)
+			cidrmaskcmp=$(($cidrmaskrange - 1))
 
-			if [ ! -z "$checkaggr" ]; then
-				echo "    $ip is already added in $blockediprange"
+			decrange=$(echo $blockediprange | sed -r 's/\/.*//')
+			binrange=$(convip "${decrange}")
+
+			sigbinip=$(echo $binip | cut -c 1-"${cidrmaskcmp}")
+			sigbinrange=$(echo $binrange | cut -c 1-"${cidrmaskcmp}")
+
+			if [[ $sigbinip == $sigbinrange ]]; then
+				echo "    $ip is already added in $fblockediprange"
 				exit 1
 			fi
-
 		done
 
 	[[ $? != 0 ]] && exit $?
@@ -46,40 +57,42 @@ checkip () {
 	done
 }
 
-checkpython () {
+convip () {
 
-	if [ ! -f ${pythonbin} ]; then
-		echo "${pythonbin} is missing, please install Python first"
-		exit 1
-	fi
+        CONV=({0,1}{0,1}{0,1}{0,1}{0,1}{0,1}{0,1}{0,1})
 
-	$pythonbin -c "import netaddr" >/dev/null 2>&1
-	pmodule=$?
+        ip=""
 
-	if [[ $pmodule -ne 0 ]]; then
-		echo "Python netaddr module is missing"
-		exit 1
-	fi
+        for byte in `echo ${1} | tr "." " "`; do
+                ip="${ip}${CONV[${byte}]}"
+        done
 
-	if [ ! -f ${checkaggrbin} ]; then
-		echo "checkaggr.py is missing, please check that it is located here as configured: ${checkaggrbin}"
-		exit 1
-	fi
+        echo ${ip:1}
 }
 
 ipfilter () {
 
-	ipfiltered=`echo "$iprange" | sed -r 's/\/32//'`
+	ipfiltered=$(echo "$iprange" | sed -r 's/\/32//')
 }
 
 protectedranges () {
 
 	pip=$iprange
+	decip=$(echo $pip | sed -r 's/\/.*//')
+	binip=$(convip "${decip}")
 
 	for protectrange in $protectedranges; do
-		checkpip=$($pythonbin $checkaggrbin $pip $protectrange)
+		fprotectrange=$(echo $protectrange | sed '/\//!s/$/\/32/g')
+		cidrmaskrange=$(echo $fprotectrange | grep -oE '[^/]+' | tail -1)
+		cidrmaskcmp=$(($cidrmaskrange - 1))
 
-		if [ ! -z "$checkpip" ]; then
+		decrange=$(echo $protectrange | sed -r 's/\/.*//')
+		binrange=$(convip "${decrange}")
+
+		sigbinip=$(echo $binip | cut -c 1-"${cidrmaskcmp}")
+		sigbinrange=$(echo $binrange | cut -c 1-"${cidrmaskcmp}")
+
+		if [[ $sigbinip == $sigbinrange ]]; then
 			echo "$pip is in a protected IP range"
 			exit 1
 		fi
@@ -109,14 +122,12 @@ add)
 	validate
 	safetylimit
 
-	if [ "$precheck" = "true" ]; then
-		checkpython
-		checkip
+	if [ "$protected" = "true" ]; then
+		protectedranges
 	fi
 
-	if [ "$protected" = "true" ]; then
-		checkpython
-		protectedranges
+	if [ "$precheck" = "true" ]; then
+		checkip
 	fi
 
 	echo "Connecting to the firewalls:"
@@ -197,12 +208,13 @@ find)
 	;;
 
 findip)
-	checkpython
 	validate
 
         echo "Connecting to the firewalls:"
 
 	ip=$iprange
+	decip=$(echo $ip | sed -r 's/\/.*//')
+	binip=$(convip "${decip}")
 
         for server in $servers; do
                 echo -n "${server}: "
@@ -210,12 +222,19 @@ findip)
                 sudo ssh -n ${server} "iptables -nvL ${fwchain}" | tail -n+3 | awk {'print$8'} | grep -v 0.0.0.0/0 | grep -v ! | while read blockediprange;
 
 		do
-			checkaggr=$($pythonbin -q $checkaggrbin $ip $blockediprange 2> /dev/null)
+			fblockediprange=$(echo $blockediprange | sed '/\//!s/$/\/32/g')
+			cidrmaskrange=$(echo $fblockediprange | grep -oE '[^/]+' | tail -1)
+			cidrmaskcmp=$(($cidrmaskrange - 1))
 
-			if [ ! -z "$checkaggr" ]; then
-				echo "    $ip matches $blockediprange"
+			decrange=$(echo $blockediprange | sed -r 's/\/.*//')
+			binrange=$(convip "${decrange}")
+
+			sigbinip=$(echo $binip | cut -c 1-"${cidrmaskcmp}")
+			sigbinrange=$(echo $binrange | cut -c 1-"${cidrmaskcmp}")
+
+			if [[ $sigbinip == $sigbinrange ]]; then
+				echo "    $ip matches $fblockediprange"
 			fi
-
 		done
 
 	[[ $? != 0 ]] && exit $?

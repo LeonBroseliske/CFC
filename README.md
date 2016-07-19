@@ -9,7 +9,7 @@ Tested on Debian Jessie, but should work on any distro.
 
 ## Prerequisites
 
-To use the 'precheck', 'protected' and 'findip' functions, you need the 'netaddr' python module installed.
+To use the 'precheck', 'protected' and 'findip' functions for IPv6, you need the 'netaddr' python module installed. The IPv4 does not need that since it uses prefix matching on the binary form of the IP.
 
 Debian: apt-get install python3-netaddr
 
@@ -26,7 +26,7 @@ The following settings can be set in the config file:
 * date: set the date format for the firewall comments, default: $(date +%d%m%Y) -> 22062016
 * fwchain: name of the firewall chain to add/del/search, default: INPUT
 * masklimit: max size of the ip ranges that can be added, default: /21
-* precheck: check if the ip that is about to be added is already in the firewall or part of a larger added range, might be a bit slow on large firewalls (~25 sec. for searching 500 ip ranges per server), default: true
+* precheck: check if the ip that is about to be added is already in the firewall or part of a larger added range, might be a bit slow on large firewalls on IPv6 (~25 sec. for searching 500 ip ranges per server), default: true
 * protected: enable the added protected ranges, default: true
 * protectedranges: ip ranges that are excluded from the 'add' function, usually the ranges owned by the local network, default: "172.16.0.0/12 10.0.0.0/8 192.168.0.0/16"
 * pythonbin: location of the used Python binary, default: /usr/bin/python3
@@ -64,7 +64,7 @@ findip:
 	cfc.sh findip n.n.n.n/NN
 	cfc6.sh findip <IPv6_address_range>
 
-Searches the firewalls if the given IP(range) is already part of an added rule, might be a bit slow on large firewalls (~25 sec. for searching 500 ip ranges per server)
+Searches the firewalls if the given IP(range) is already part of an added rule, might be a bit slow on large firewalls for IPV6 (~25 sec. for searching 500 ip ranges per server). IPv4 uses prefix matching on the binary form of the IP instead which is roughly 500% faster, this is also used for the precheck and protectedranges features.
 
 last:
 
