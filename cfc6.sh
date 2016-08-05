@@ -28,7 +28,7 @@ checkip () {
 
 	ip=$iprange
 
-	for server in $servers; do
+	for server in $servers6; do
 		sudo ssh -n ${server} "ip6tables -nvL ${fwchain6}" | tail -n+3 | awk {'print$7'} | grep -v "::/0" | grep -v "::1/128" | while read blockediprange;
 
 		do
@@ -116,7 +116,7 @@ add)
 
 	echo "Connecting to the firewalls:"
 
-	for server in $servers; do
+	for server in $servers6; do
 		echo -n "${server}: "
 		sudo ssh -n ${server} "ip6tables -I ${fwchain6} 1 -j ${action} -s ${iprange} -m comment --comment \"${date} ${comment}\""
 		sshreturn=$?
@@ -142,7 +142,7 @@ del)
 
 	echo "Connecting to the firewalls:"
 
-	for server in $servers; do
+	for server in $servers6; do
 		echo -n "${server}: "
 		linenr=$(sudo ssh -n ${server} "ip6tables -nvL ${fwchain6} --line-numbers | grep ${ipfiltered}" | awk {'print$1'} | head -1)
 
@@ -173,7 +173,7 @@ find)
 
 	echo "Connecting to the firewalls:"
 
-	for server in $servers; do
+	for server in $servers6; do
 		echo -n "${server}: "
 		echo -e
 		echo " pkts bytes target     prot opt in     out     source               destination        comment"
@@ -199,7 +199,7 @@ findip)
 
 	ip=$iprange
 
-        for server in $servers; do
+        for server in $servers6; do
                 echo -n "${server}: "
                 echo -e
                 sudo ssh -n ${server} "ip6tables -nvL ${fwchain6}" | tail -n+3 | awk {'print$7'} | grep -v "::/0" | grep -v "::1/128" | while read blockediprange;
@@ -225,7 +225,7 @@ last)
 
 	lines=$((iprange + 2))
 
-	for server in $servers; do
+	for server in $servers6; do
 		echo -n "${server}: "
 		echo -e
 		echo " pkts bytes target     prot opt in     out     source               destination        comment"

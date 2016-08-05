@@ -14,3 +14,4 @@ protectedranges="172.16.0.0/12 10.0.0.0/8 192.168.0.0/16"
 protectedranges6="fc00::/7"
 pythonbin=/usr/bin/python3
 servers="lvs01.example.com lvs02.example.com lvs03.example.com lvs04.example.com"
+servers6="lvs01v6.example.com lvs02v6.example.com lvs03v6.example.com lvs04v6.example.com"
