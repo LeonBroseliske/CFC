@@ -7,7 +7,7 @@
 ################################
 
 if [ "$1" = "" ] || [ "$2" = "" ]; then
-	echo "Usage: ./cfc.sh add n.n.n.n/NN '<optional comment>'"
+	echo "Usage: ./cfc.sh add n.n.n.n/NN '<optional_comment>'"
 	echo "       ./cfc.sh del n.n.n.n/NN"
 	echo "       ./cfc.sh find <string>"
 	echo "       ./cfc.sh findip n.n.n.n/NN"
@@ -192,7 +192,7 @@ find)
 	for server in $servers; do
 		echo -n "${server}: "
 		echo -e
-		echo " pkts bytes target     prot opt in     out     source               destination        comment"
+		echo " pkts bytes target     prot opt in     out     source               destination         comment"
 		sudo ssh -n ${server} "iptables -nvL ${fwchain} | grep -i ${ipfiltered}"
 		sshreturn=$?
 
@@ -252,7 +252,7 @@ last)
 	for server in $servers; do
 		echo -n "${server}: "
 		echo -e
-		echo " pkts bytes target     prot opt in     out     source               destination        comment"
+		echo " pkts bytes target     prot opt in     out     source               destination         comment"
 		sudo ssh -n ${server} "iptables -nvL ${fwchain} | head -${lines} | tail -n+3"
 		sshreturn=$?
 

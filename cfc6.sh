@@ -7,7 +7,7 @@
 #####################################
 
 if [ "$1" = "" ] || [ "$2" = "" ]; then
-	echo "Usage: ./cfc6.sh add <IPv6_address_range> '<optional comment>'"
+	echo "Usage: ./cfc6.sh add <IPv6_address_range> '<optional_comment>'"
 	echo "       ./cfc6.sh del <IPv6_address_range>"
 	echo "       ./cfc6.sh find <string>"
 	echo "       ./cfc6.sh findip <IPv6_address_range>"
@@ -176,7 +176,7 @@ find)
 	for server in $servers6; do
 		echo -n "${server}: "
 		echo -e
-		echo " pkts bytes target     prot opt in     out     source               destination        comment"
+		echo " pkts bytes target     prot opt in     out     source               destination         comment"
 		sudo ssh -n ${server} "ip6tables -nvL ${fwchain6} | grep -i ${ipfiltered}"
 		sshreturn=$?
 
@@ -228,7 +228,7 @@ last)
 	for server in $servers6; do
 		echo -n "${server}: "
 		echo -e
-		echo " pkts bytes target     prot opt in     out     source               destination        comment"
+		echo " pkts bytes target     prot opt in     out     source               destination         comment"
 		sudo ssh -n ${server} "ip6tables -nvL ${fwchain6} | head -${lines} | tail -n+3"
 		sshreturn=$?
 
