@@ -16,7 +16,7 @@ if [ "$1" = "" ] || [ "$2" = "" ]; then
 fi
 
 # Settings
-source ./cfc.cfg
+source cfc.cfg
 
 mode=$1
 iprange=$2
