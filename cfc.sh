@@ -8,6 +8,7 @@
 
 if [ "$1" = "" ] || [ "$2" = "" ]; then
 	echo "Usage: ./cfc.sh add n.n.n.n/NN '<optional_comment>'"
+	echo "       ./cfc.sh clean <older_than_number_of_days>"
 	echo "       ./cfc.sh del n.n.n.n/NN"
 	echo "       ./cfc.sh find <string>"
 	echo "       ./cfc.sh findip n.n.n.n/NN"
@@ -68,6 +69,30 @@ convip () {
         done
 
         echo ${ip:1}
+}
+
+deleterule () {
+
+	for server in $servers; do
+		echo -n "${server}: "
+		linenr=$(sudo ssh -n ${server} "iptables -nvL ${fwchain} --line-numbers | grep ${ipfiltered}" | awk {'print$1'} | head -1)
+
+		if [ -z "$linenr" ]; then
+			echo -n "Not found"
+			echo -e
+		else
+			sudo ssh -n ${server} "iptables -D ${fwchain} ${linenr}"
+			sshreturn=$?
+			echo -n "Removed"
+			echo -e
+		fi
+
+		if [[ $sshreturn -ne 0 ]]; then
+			echo -n "Error"
+			echo -e
+			exit 1
+		fi
+	done
 }
 
 ipfilter () {
@@ -152,32 +177,57 @@ add)
 	exit 0
 	;;
 
+clean)
+
+	if [ "$cleanupconfirmation" = "true" ]; then
+		cleanupdays=$iprange
+		echo "Do you really want to clean all CFC firewall rules older than ${cleanupdays} days?"
+		read -r -p "[y/N] " response
+
+		if [[ ! $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
+			exit 1
+		else
+			cleanuptime=$((cleanupdays * 86400))
+			cleanupage=0
+		fi
+	fi
+
+	echo "Connecting to the firewalls:"
+
+	for server in $servers; do
+		echo -n "${server}: "
+		echo -e
+		sudo ssh -n ${server} "iptables -nvL ${fwchain}" | grep -P '(?<!\d)\d{8}(?!\d)' | grep -v STRING | tr -d "*" | sed -e "s/ \///g" | while read cfcrules;
+
+		do
+			cfcruledate=$(echo ${cfcrules} | awk {'print$8'})
+			day=$(echo ${cfcruledate} | cut -c1-2)
+			month=$(echo ${cfcruledate} | cut -c3-4)
+			year=$(echo ${cfcruledate} | cut -c5-8)
+			cfcruletimeunix=`date -d "$year-$month-$day" +%s`
+			let cfcruleage=$(date +%s)-$(echo $cfcruletimeunix)
+
+			if [[ $cfcruleage -gt $cleanuptime ]]; then
+				ipfiltered=$(echo ${cfcrules} | awk {'print$6'})
+				echo "Removing: ${ipfiltered}"
+				deleterule
+			fi
+		done
+
+	[[ $? != 0 ]] && exit $?
+
+	done
+
+	exit 0
+	;;
+
 del)
 	validate
 	ipfilter
 
 	echo "Connecting to the firewalls:"
 
-	for server in $servers; do
-		echo -n "${server}: "
-		linenr=$(sudo ssh -n ${server} "iptables -nvL ${fwchain} --line-numbers | grep ${ipfiltered}" | awk {'print$1'} | head -1)
-
-		if [ -z "$linenr" ]; then
-			echo -n "Not found"
-			echo -e
-		else
-			sudo ssh -n ${server} "iptables -D ${fwchain} ${linenr}"
-			sshreturn=$?
-			echo -n "Removed"
-			echo -e
-		fi
-
-		if [[ $sshreturn -ne 0 ]]; then
-			echo -n "Error"
-			echo -e
-			exit 1
-		fi
-	done
+	deleterule
 
 	echo "Done"
 

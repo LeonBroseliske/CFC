@@ -1,6 +1,7 @@
 # Settings
 action=DROP
 checkaggrbin=./checkaggr.py
+cleanupconfirmation=true
 date=$(date +%d%m%Y)
 fwchain=INPUT
 fwchain6=INPUT

@@ -23,6 +23,7 @@ The following settings can be set in the config file:
 
 * action: sets the action when adding a rule, default: DROP
 * checkaggrbin: path to the checkaggr.py script, default: ./checkaggr.py
+* cleanupconfirmation: asks for confirmation before running the clean command, set to false for cron usage, default: true
 * date: set the date format for the firewall comments, default: $(date +%d%m%Y) -> 22062016
 * fwchain: name of the firewall chain to add/del/search, default: INPUT
 * masklimit: max size of the ip ranges that can be added, default: /21
@@ -44,6 +45,12 @@ add:
 	cfc6.sh add <IPv6_address_range> '<optional comment>'
 
 Adds the given IP(range) to the firewalls with the configured action for all traffic from that source. Makes a comment by default with the current date, you can add an optional comment using single quotes to add a reason or owner of that range as an example. It can also be searched on that comment later on.
+
+clean:
+
+	cfc.sh clean <older_than_number_of_days>
+
+Cleans all the CFC firewall rules older than n amount of days. Keep in mind that it depends on the default date format! So if you customized the date format, you will need to adjust the script in the 'clean' section.
 
 del:
 
