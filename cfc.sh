@@ -10,6 +10,7 @@ if [ "$1" = "" ] || [ "$2" = "" ]; then
 	echo "Usage: ./cfc.sh add n.n.n.n/NN '<optional_comment>'"
 	echo "       ./cfc.sh clean <older_than_number_of_days>"
 	echo "       ./cfc.sh del n.n.n.n/NN"
+	echo "       ./cfc.sh ipsethostinit <server_name>"
 	echo "       ./cfc.sh find <string>"
 	echo "       ./cfc.sh findip n.n.n.n/NN"
 	echo "       ./cfc.sh last <nr_of_most_recent_rules>"
@@ -290,6 +291,16 @@ findip)
 	[[ $? != 0 ]] && exit $?
 
 	done
+
+        exit 0
+        ;;
+
+ipsethostinit)
+        echo "Initialising $2 for IPSET use"
+
+	sudo ssh -n $2 "ipset -N ${ipsetname} nethash comment; iptables -I ${fwchain} 1 -m set --match-set ${ipsetname} src -j ${action}"
+
+        echo "Done"
 
         exit 0
         ;;

@@ -25,13 +25,15 @@ The following settings can be set in the config file:
 * checkaggrbin: path to the checkaggr.py script, default: ./checkaggr.py
 * cleanupconfirmation: asks for confirmation before running the clean command, set to false for cron usage, default: true
 * date: set the date format for the firewall comments, default: $(date +%d%m%Y) -> 22062016
+* ipsetname: sets the IPSET list name, default: blockedips
+* ipsetservers: sets the servers that use IPSET instead of iptables, default: "lvs05.example.com lvs06.example.com"
 * fwchain: name of the firewall chain to add/del/search, default: INPUT
 * masklimit: max size of the ip ranges that can be added, default: /21
 * precheck: check if the ip that is about to be added is already in the firewall or part of a larger added range, might be a bit slow on large firewalls on IPv6 (~25 sec. for searching 500 ip ranges per server), default: true
 * protected: enable the added protected ranges, default: true
 * protectedranges: ip ranges that are excluded from the 'add' function, usually the ranges owned by the local network, default: "172.16.0.0/12 10.0.0.0/8 192.168.0.0/16"
 * pythonbin: location of the used Python binary, default: /usr/bin/python3
-* servers: servers that the firewalls run on that will be controlled through ssh, default: "lvs01.example.com lvs02.example.com lvs03.example.com lvs04.example.com"
+* servers: sets the servers that use iptables only, default: "lvs01.example.com lvs02.example.com lvs03.example.com lvs04.example.com"
 
 * The IPv6 functions are marked with the '6' suffix
 
@@ -72,6 +74,12 @@ findip:
 	cfc6.sh findip <IPv6_address_range>
 
 Searches the firewalls if the given IP(range) is already part of an added rule, might be a bit slow on large firewalls for IPV6 (~25 sec. for searching 500 ip ranges per server). IPv4 uses prefix matching on the binary form of the IP instead which is roughly 500% faster, this is also used for the precheck and protectedranges features.
+
+ipsethostinit:
+
+	cfc.sh ipsethostinit <server_name>
+
+Adds a IPSET list to the specified host and an iptables rule referring to it using the parameters defined in the cfc.cfg. This only needs to be done once before adding firewall rules.
 
 last:
 
