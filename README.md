@@ -79,7 +79,7 @@ ipsethostinit:
 
 	cfc.sh ipsethostinit <server_name>
 
-Adds a IPSET list to the specified host and an iptables rule referring to it using the parameters defined in the cfc.cfg. This only needs to be done once before adding firewall rules.
+Adds an IPSET list to the specified host and an iptables rule referring to it using the parameters defined in the cfc.cfg. This only needs to be done once before adding firewall rules.
 
 last:
 
