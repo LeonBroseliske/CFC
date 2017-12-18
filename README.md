@@ -5,7 +5,7 @@ It accesses those servers through ssh.
 
 It supports both IPv4 and IPv6.
 
-Tested on Debian Jessie, but should work on any distro.
+Tested on Debian 6.x / 7.x / 8.x / 9.x, but should work on any distro.
 
 ## Prerequisites
 
