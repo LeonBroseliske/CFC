@@ -118,6 +118,38 @@ checkpython () {
 	fi
 }
 
+deleteipsetrule6 () {
+
+	echo "Connecting to the IPSET firewalls:"
+
+        for ipsetserver in $ipsetservers6; do
+                echo -n "${ipsetserver}: "
+                ipsetdel=$(sudo ssh -n ${ipsetserver} "ipset del ${ipsetname6} ${iprange} &>/dev/null"; echo $?)
+
+		sshreturn=$?
+
+                if [ $ipsetdel = "1" ]; then
+                        echo -n "Not found"
+                        echo -e
+		fi
+
+		if [ $ipsetdel = "0" ]; then
+                        echo -n "Removed"
+                        echo -e
+                fi
+
+                if [[ $sshreturn -ne 0 ]]; then
+                        echo -n "Error"
+                        echo -e
+                        exit 1
+                fi
+        done
+
+	echo "Done"
+
+	exit 0
+}
+
 protectedranges6 () {
 
 	pip=$iprange
@@ -188,12 +220,18 @@ add)
 
 	echo "Done"
 
+	addipset6
+
 	exit 0
 	;;
 
 del)
 	validate
 	ipfiltered=$iprange
+
+	if [ -z "$servers6" ]; then
+		deleteipsetrule6
+	fi
 
 	echo "Connecting to the firewalls:"
 
@@ -219,6 +257,8 @@ del)
 	done
 
 	echo "Done"
+
+	deleteipsetrule6
 
 	exit 0
 	;;
