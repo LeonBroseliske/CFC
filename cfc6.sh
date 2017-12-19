@@ -11,6 +11,7 @@ if [ "$1" = "" ] || [ "$2" = "" ]; then
 	echo "       ./cfc6.sh del <IPv6_address_range>"
 	echo "       ./cfc6.sh find <string>"
 	echo "       ./cfc6.sh findip <IPv6_address_range>"
+	echo "       ./cfc6.sh ipsethostinit <server_name>"
 	echo "       ./cfc6.sh last <nr_of_most_recent_rules>"
 	exit 1
 fi
@@ -23,6 +24,42 @@ iprange=$2
 comment=$3
 cidrmask=`echo $iprange | grep -oE '[^/]+' | tail -1`
 
+
+addipset6 () {
+
+	if [ -z "$ipsetservers6" ]; then
+		exit 0
+	fi
+
+	if [ "$protected6" = "true" ]; then
+		protectedranges6
+	fi
+
+	if [ "$precheck6" = "true" ]; then
+		checkipset6
+	fi
+
+	echo "Connecting to the IPSET firewalls:"
+
+	for ipsetserver in $ipsetservers6; do
+		echo -n "${ipsetserver}: "
+		sudo ssh -n ${ipsetserver} "ipset -A ${ipsetname6} ${iprange} comment \"${date} ${comment}\""
+		sshreturn=$?
+
+		if [[ $sshreturn -ne 0 ]]; then
+			echo -n "Error"
+			echo -e
+			exit 1
+		else
+			echo -n "Blocked"
+			echo -e
+		fi
+	done
+
+	echo "Done"
+
+	exit 0
+}
 
 checkip () {
 
@@ -43,6 +80,20 @@ checkip () {
 
 	[[ $? != 0 ]] && exit $?
 
+	done
+}
+
+checkipset6 () {
+
+	echo "Checking if it's already added"
+
+	for ipsetserver in $ipsetservers6; do
+		ipsettest=$(sudo ssh -n ${ipsetserver} "ipset test ${ipsetname6} ${iprange} &>/dev/null"; echo $?)
+
+		if [ $ipsettest = "0" ]; then
+			echo "    $iprange is already added"
+			exit 1
+		fi
 	done
 }
 
@@ -103,6 +154,10 @@ case "$1" in
 add)
 	validate
 	safetylimit
+
+	if [ -z "$servers6" ]; then
+		addipset6
+	fi
 
 	if [ "$precheck6" = "true" ]; then
 		checkpython
@@ -216,6 +271,16 @@ findip)
 	[[ $? != 0 ]] && exit $?
 
 	done
+
+        exit 0
+        ;;
+
+ipsethostinit)
+        echo "Initialising $2 for IPSET use"
+
+	sudo ssh -n $2 "ipset -N ${ipsetname6} nethash comment family inet6; ip6tables -I ${fwchain} 1 -m set --match-set ${ipsetname6} src -j ${action}"
+
+        echo "Done"
 
         exit 0
         ;;

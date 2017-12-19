@@ -82,6 +82,7 @@ Searches the firewalls if the given IP(range) is already part of an added rule, 
 ipsethostinit:
 
 	cfc.sh ipsethostinit <server_name>
+	cfc6.sh ipsethostinit <server_name>
 
 Adds an IPSET list to the specified host and an iptables rule referring to it using the parameters defined in the cfc.cfg. This only needs to be done once before adding firewall rules.
 
