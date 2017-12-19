@@ -13,6 +13,10 @@ To use the 'precheck', 'protected' and 'findip' functions for IPv6, you need the
 
 Debian: apt-get install python3-netaddr
 
+It's more efficient to use 'ipset' in addition to iptables. Ipset can be used to manage lists that iptables can refer to and use. This works faster and manipulation of the list is also more flexible and the preferred method of using this script.
+
+Debian: apt-get install ipset
+
 Since this script connects to the given servers with ssh, such access must be present before it can be used.
 
 ## Settings

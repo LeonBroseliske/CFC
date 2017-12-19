@@ -26,6 +26,42 @@ comment=$3
 cidrmask=$(echo $iprange | grep -oE '[^/]+' | tail -1)
 
 
+addipset () {
+
+	if [ -z "$ipsetservers" ]; then
+		exit 0
+	fi
+
+	if [ "$protected" = "true" ]; then
+		protectedranges
+	fi
+
+	if [ "$precheck" = "true" ]; then
+		checkipset
+	fi
+
+	echo "Connecting to the IPSET firewalls:"
+
+	for ipsetserver in $ipsetservers; do
+		echo -n "${ipsetserver}: "
+		sudo ssh -n ${ipsetserver} "ipset -A ${ipsetname} ${iprange} comment \"${date} ${comment}\""
+		sshreturn=$?
+
+		if [[ $sshreturn -ne 0 ]]; then
+			echo -n "Error"
+			echo -e
+			exit 1
+		else
+			echo -n "Blocked"
+			echo -e
+		fi
+	done
+
+	echo "Done"
+
+	exit 0
+}
+
 checkip () {
 
 	echo "Checking if it's already added"
@@ -56,6 +92,20 @@ checkip () {
 
 	[[ $? != 0 ]] && exit $?
 
+	done
+}
+
+checkipset () {
+
+	echo "Checking if it's already added"
+
+	for ipsetserver in $ipsetservers; do
+		ipsettest=$(sudo ssh -n ${ipsetserver} "ipset test ${ipsetname} ${iprange} &>/dev/null"; echo $?)
+
+		if [ $ipsettest = "0" ]; then
+			echo "    $iprange is already added"
+			exit 1
+		fi
 	done
 }
 
@@ -148,6 +198,10 @@ add)
 	validate
 	safetylimit
 
+	if [ -z "$servers" ]; then
+		addipset
+	fi
+
 	if [ "$protected" = "true" ]; then
 		protectedranges
 	fi
@@ -175,7 +229,8 @@ add)
 
 	echo "Done"
 
-	exit 0
+	addipset
+
 	;;
 
 clean)
