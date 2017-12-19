@@ -146,6 +146,38 @@ deleterule () {
 	done
 }
 
+deleteipsetrule () {
+
+	echo "Connecting to the IPSET firewalls:"
+
+        for ipsetserver in $ipsetservers; do
+                echo -n "${ipsetserver}: "
+                ipsetdel=$(sudo ssh -n ${ipsetserver} "ipset del ${ipsetname} ${iprange} &>/dev/null"; echo $?)
+
+		sshreturn=$?
+
+                if [ $ipsetdel = "1" ]; then
+                        echo -n "Not found"
+                        echo -e
+		fi
+
+		if [ $ipsetdel = "0" ]; then
+                        echo -n "Removed"
+                        echo -e
+                fi
+
+                if [[ $sshreturn -ne 0 ]]; then
+                        echo -n "Error"
+                        echo -e
+                        exit 1
+                fi
+        done
+
+	echo "Done"
+
+	exit 0
+}
+
 ipfilter () {
 
 	ipfiltered=$(echo "$iprange" | sed -r 's/\/32//')
@@ -280,6 +312,10 @@ clean)
 del)
 	validate
 	ipfilter
+
+	if [ -z "$servers" ]; then
+		deleteipsetrule
+	fi
 
 	echo "Connecting to the firewalls:"
 
