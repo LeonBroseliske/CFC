@@ -389,7 +389,7 @@ findip)
 ipsethostinit)
         echo "Initialising $2 for IPSET use"
 
-	sudo ssh -n $2 "ipset -N ${ipsetname} nethash comment; iptables -I ${fwchain} 1 -m set --match-set ${ipsetname} src -j ${action}"
+	sudo ssh -n $2 "ipset -N ${ipsetname} nethash comment counters; iptables -I ${fwchain} 1 -m set --match-set ${ipsetname} src -j ${action}"
 
         echo "Done"
 

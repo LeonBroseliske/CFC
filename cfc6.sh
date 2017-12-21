@@ -318,7 +318,7 @@ findip)
 ipsethostinit)
         echo "Initialising $2 for IPSET use"
 
-	sudo ssh -n $2 "ipset -N ${ipsetname6} nethash comment family inet6; ip6tables -I ${fwchain6} 1 -m set --match-set ${ipsetname6} src -j ${action}"
+	sudo ssh -n $2 "ipset -N ${ipsetname6} nethash comment counters family inet6; ip6tables -I ${fwchain6} 1 -m set --match-set ${ipsetname6} src -j ${action}"
 
         echo "Done"
 
