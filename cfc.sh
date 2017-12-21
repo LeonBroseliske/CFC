@@ -389,7 +389,26 @@ findip)
 ipsethostinit)
         echo "Initialising $2 for IPSET use"
 
-	sudo ssh -n $2 "ipset -N ${ipsetname} nethash comment counters; iptables -I ${fwchain} 1 -m set --match-set ${ipsetname} src -j ${action}"
+	listtest=$(sudo ssh -n $2 "ipset -N ${ipsetname} nethash comment counters &>/dev/null"; echo $?)
+
+	if [ $listtest = "1" ]; then
+		echo "Do you want to re-create the IPSET list, all content in the current list will be deleted"
+		read -r -p "[y/N] " response
+
+		if [[ ! $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
+			exit 1
+		else
+			linenr=$(sudo ssh -n $2 "iptables -nvL ${fwchain} --line-numbers | grep 'match-set ${ipsetname}'" | awk {'print$1'} | head -1)
+
+			sudo ssh -n $2 "iptables -D ${fwchain} ${linenr}; ipset destroy ${ipsetname}; ipset -N ${ipsetname} nethash comment counters"
+		fi
+	fi
+
+	ruletest=$(sudo ssh -n $2 "iptables -C ${fwchain} -m set --match-set ${ipsetname} src -j ${action} &>/dev/null"; echo $?)
+
+	if [ $ruletest = "1" ]; then
+		sudo ssh -n $2 "iptables -I ${fwchain} 1 -m set --match-set ${ipsetname} src -j ${action}"
+	fi
 
         echo "Done"
 
