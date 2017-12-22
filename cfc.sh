@@ -183,6 +183,31 @@ ipfilter () {
 	ipfiltered=$(echo "$iprange" | sed -r 's/\/32//')
 }
 
+ipsetfind () {
+
+	if [ -z "$ipsetservers" ]; then
+		exit 0
+	fi
+
+	echo "Connecting to the IPSET firewalls:"
+
+	for ipsetserver in $ipsetservers; do
+		echo "${ipsetserver}: "
+		echo -n " "
+		sudo ssh -n ${ipsetserver} "ipset list | grep -P '(?<!\d)^\d{1,3}(?!\d)' | grep -i ${ipfiltered}"
+		sshreturn=$?
+
+		if [[ $sshreturn -ne 0 ]]; then
+			echo "    Not found"
+			echo -e
+		else
+			echo -e
+		fi
+	done
+
+	exit 0
+}
+
 protectedranges () {
 
 	pip=$iprange
@@ -329,6 +354,10 @@ del)
 find)
 	ipfilter
 
+        if [ -z "$servers" ]; then
+                ipsetfind
+        fi
+
 	echo "Connecting to the firewalls:"
 
 	for server in $servers; do
@@ -345,6 +374,8 @@ find)
 			echo -e
 		fi
 	done
+
+	ipsetfind
 
 	exit 0
 	;;
