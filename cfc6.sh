@@ -150,6 +150,30 @@ deleteipsetrule6 () {
 	exit 0
 }
 
+ipsetfind6 () {
+
+	if [ -z "$ipsetservers6" ]; then
+		exit 0
+	fi
+
+	echo "Connecting to the IPSET firewalls:"
+
+	for ipsetserver in $ipsetservers6; do
+		echo "${ipsetserver}: "
+		sudo ssh -n ${ipsetserver} "ipset list ${ipsetname6} | grep -P '(?<!\d)\d{8}(?!\d)' | grep -i ${ipfiltered}"
+		sshreturn=$?
+
+		if [[ $sshreturn -ne 0 ]]; then
+			echo "    Not found"
+			echo -e
+		else
+			echo -e
+		fi
+	done
+
+	exit 0
+}
+
 protectedranges6 () {
 
 	pip=$iprange
@@ -266,6 +290,10 @@ del)
 find)
 	ipfiltered=$iprange
 
+        if [ -z "$servers6" ]; then
+                ipsetfind6
+        fi
+
 	echo "Connecting to the firewalls:"
 
 	for server in $servers6; do
@@ -282,6 +310,8 @@ find)
 			echo -e
 		fi
 	done
+
+	ipsetfind6
 
 	exit 0
 	;;
