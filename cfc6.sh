@@ -174,6 +174,37 @@ ipsetfind6 () {
 	exit 0
 }
 
+ipsetfindip6 () {
+
+	if [ -z "$ipsetservers6" ]; then
+		exit 0
+	fi
+
+	echo "Connecting to the IPSET firewalls:"
+
+	ip=$iprange
+
+        for ipsetserver in $ipsetservers6; do
+                echo -n "${ipsetserver}: "
+                echo -e
+                sudo ssh -n ${ipsetserver} "ipset list ${ipsetname6}" | grep -P '(?<!\d)\d{8}(?!\d)' | awk {'print$1'} | while read blockediprange;
+
+		do
+			checkaggr=$($pythonbin -q $checkaggrbin $ip $blockediprange 2> /dev/null)
+
+			if [ ! -z "$checkaggr" ]; then
+				echo "    $ip matches $blockediprange"
+			fi
+
+		done
+
+	[[ $? != 0 ]] && exit $?
+
+	done
+
+	exit 0
+}
+
 protectedranges6 () {
 
 	pip=$iprange
@@ -320,6 +351,10 @@ findip)
 	checkpython
 	validate
 
+        if [ -z "$servers6" ]; then
+                ipsetfindip6
+        fi
+
         echo "Connecting to the firewalls:"
 
 	ip=$iprange
@@ -341,6 +376,8 @@ findip)
 	[[ $? != 0 ]] && exit $?
 
 	done
+
+	ipsetfindip6
 
         exit 0
         ;;
