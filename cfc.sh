@@ -193,8 +193,7 @@ ipsetfind () {
 
 	for ipsetserver in $ipsetservers; do
 		echo "${ipsetserver}: "
-		echo -n " "
-		sudo ssh -n ${ipsetserver} "ipset list | grep -P '(?<!\d)^\d{1,3}(?!\d)' | grep -i ${ipfiltered}"
+		sudo ssh -n ${ipsetserver} "ipset list ${ipsetname} | grep -P '(?<!\d)^\d{1,3}(?!\d)' | grep -i ${ipfiltered}"
 		sshreturn=$?
 
 		if [[ $sshreturn -ne 0 ]]; then
