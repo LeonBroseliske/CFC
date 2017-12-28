@@ -205,6 +205,33 @@ ipsetfindip6 () {
 	exit 0
 }
 
+lastipset6 () {
+
+        if [ -z "$ipsetservers6" ]; then
+                exit 0
+        fi
+
+        echo "Connecting to the IPSET firewalls:"
+
+	lines=$iprange
+
+	for ipsetserver in $ipsetservers6; do
+		echo -n "${ipsetserver}: "
+		echo -e
+		sudo ssh -n ${ipsetserver} "ipset list ${ipsetname6} | grep -P '(?<!\d)\d{8}(?!\d)' | tr -d '\"' | sort -k7nr | head -${lines}"
+		sshreturn=$?
+
+		if [[ $sshreturn -ne 0 ]]; then
+			echo "    Not found"
+			echo -e
+		else
+			echo -e
+		fi
+	done
+
+	exit 0
+}
+
 protectedranges6 () {
 
 	pip=$iprange
@@ -393,6 +420,10 @@ ipsethostinit)
         ;;
 
 last)
+        if [ -z "$servers6" ]; then
+                lastipset6
+        fi
+
 	echo "Connecting to the firewalls:"
 
 	lines=$((iprange + 2))
@@ -411,6 +442,8 @@ last)
 			echo -e
 		fi
 	done
+
+	lastipset6
 
 	exit 0
 	;;
