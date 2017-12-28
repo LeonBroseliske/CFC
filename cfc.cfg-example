@@ -3,6 +3,7 @@ action=DROP
 checkaggrbin=./checkaggr.py
 cleanupconfirmation=true
 date=$(date +%d%m%Y)
+dateipset=$(date +%Y%m%d)
 fwchain=INPUT
 fwchain6=INPUT
 ipsetname=blockedips

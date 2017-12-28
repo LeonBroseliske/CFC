@@ -29,6 +29,7 @@ The following settings can be set in the config file:
 * checkaggrbin: path to the checkaggr.py script, default: ./checkaggr.py
 * cleanupconfirmation: asks for confirmation before running the clean command, set to false for cron usage, default: true
 * date: set the date format for the firewall comments, default: $(date +%d%m%Y) -> 22062016
+* dateipset: set the date format for the ipset firewall comments, leave this on the default to avoid breaking some of the functions, default: $(date +%Y%m%d) -> 20160622
 * ipsetname: sets the IPSET list name, default: blockedips
 * ipsetservers: sets the servers that use IPSET instead of iptables, default: "lvs05.example.com lvs06.example.com"
 * fwchain: name of the firewall chain to add/del/search, default: INPUT
