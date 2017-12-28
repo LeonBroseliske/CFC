@@ -44,7 +44,7 @@ addipset () {
 
 	for ipsetserver in $ipsetservers; do
 		echo -n "${ipsetserver}: "
-		sudo ssh -n ${ipsetserver} "ipset -A ${ipsetname} ${iprange} comment \"${date} ${comment}\""
+		sudo ssh -n ${ipsetserver} "ipset -A ${ipsetname} ${iprange} comment \"${dateipset} ${comment}\""
 		sshreturn=$?
 
 		if [[ $sshreturn -ne 0 ]]; then
