@@ -326,8 +326,10 @@ add)
 		protectedranges
 	fi
 
-	if [ "$precheck" = "true" ]; then
+	if [ "$precheck" = "true" ] && [ -z "$ipsetservers" ]; then
 		checkip
+	else
+		checkipset
 	fi
 
 	echo "Connecting to the firewalls:"

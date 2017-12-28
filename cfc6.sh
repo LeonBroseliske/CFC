@@ -273,9 +273,11 @@ add)
 		addipset6
 	fi
 
-	if [ "$precheck6" = "true" ]; then
+	if [ "$precheck6" = "true" ] && [ -z "$ipsetservers6" ]; then
 		checkpython
 		checkip
+	else
+		checkipset6
 	fi
 
 	if [ "$protected6" = "true" ]; then
