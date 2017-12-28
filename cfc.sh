@@ -413,6 +413,8 @@ del)
 
 	echo "Done"
 
+	deleteipsetrule
+
 	exit 0
 	;;
 
