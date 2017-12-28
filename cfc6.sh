@@ -43,7 +43,7 @@ addipset6 () {
 
 	for ipsetserver in $ipsetservers6; do
 		echo -n "${ipsetserver}: "
-		sudo ssh -n ${ipsetserver} "ipset -A ${ipsetname6} ${iprange} comment \"${date} ${comment}\""
+		sudo ssh -n ${ipsetserver} "ipset -A ${ipsetname6} ${iprange} comment \"${dateipset} ${comment}\""
 		sshreturn=$?
 
 		if [[ $sshreturn -ne 0 ]]; then
