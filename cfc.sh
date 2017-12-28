@@ -207,6 +207,43 @@ ipsetfind () {
 	exit 0
 }
 
+ipsetfindip () {
+
+	if [ -z "$ipsetservers" ]; then
+		exit 0
+	fi
+
+	echo "Connecting to the IPSET firewalls:"
+
+	ip=$iprange
+	decip=$(echo $ip | sed -r 's/\/.*//')
+	binip=$(convip "${decip}")
+
+	for ipsetserver in $ipsetservers; do
+		echo -n "${ipsetserver}: "
+		echo -e
+		sudo ssh -n ${ipsetserver} "ipset list ${ipsetname}" | grep -P '(?<!\d)^\d{1,3}(?!\d)' | awk {'print$1'} | while read blockediprange;
+
+		do
+			fblockediprange=$(echo $blockediprange | sed '/\//!s/$/\/32/g')
+			cidrmaskrange=$(echo $fblockediprange | grep -oE '[^/]+' | tail -1)
+			cidrmaskcmp=$(($cidrmaskrange - 1))
+
+			decrange=$(echo $blockediprange | sed -r 's/\/.*//')
+			binrange=$(convip "${decrange}")
+
+			sigbinip=$(echo $binip | cut -c 1-"${cidrmaskcmp}")
+			sigbinrange=$(echo $binrange | cut -c 1-"${cidrmaskcmp}")
+
+			if [[ $sigbinip == $sigbinrange ]]; then
+				echo "    $ip matches $fblockediprange"
+			fi
+		done
+	done
+
+	exit 0
+}
+
 protectedranges () {
 
 	pip=$iprange
@@ -382,6 +419,10 @@ find)
 findip)
 	validate
 
+        if [ -z "$servers" ]; then
+                ipsetfindip
+        fi
+
         echo "Connecting to the firewalls:"
 
 	ip=$iprange
@@ -412,6 +453,8 @@ findip)
 	[[ $? != 0 ]] && exit $?
 
 	done
+
+	ipsetfindip
 
         exit 0
         ;;
