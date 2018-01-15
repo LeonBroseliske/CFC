@@ -421,6 +421,8 @@ del)
 find)
 	ipfilter
 
+	servers+=$(echo " ${ipsetservers}")
+
         if [ -z "$servers" ]; then
                 ipsetfind
         fi
