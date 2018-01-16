@@ -193,7 +193,7 @@ ipsetfind () {
 
 	for ipsetserver in $ipsetservers; do
 		echo "${ipsetserver}: "
-		sudo ssh -n ${ipsetserver} "ipset list ${ipsetname} | grep -P '(?<!\d)^\d{1,3}(?!\d)' | grep -i ${ipfiltered}"
+		sudo ssh -n ${ipsetserver} "ipset list ${ipsetname} | grep -P '(?<!\d)^\d{1,3}(?!\d)' | grep -i \"${ipfiltered}\""
 		sshreturn=$?
 
 		if [[ $sshreturn -ne 0 ]]; then
@@ -433,7 +433,7 @@ find)
 		echo -n "${server}: "
 		echo -e
 		echo " pkts bytes target     prot opt in     out     source               destination         comment"
-		sudo ssh -n ${server} "iptables -nvL ${fwchain} | grep -i ${ipfiltered}"
+		sudo ssh -n ${server} "iptables -nvL ${fwchain} | grep -i \"${ipfiltered}\""
 		sshreturn=$?
 
 		if [[ $sshreturn -ne 0 ]]; then
