@@ -109,6 +109,20 @@ checkipset () {
 	done
 }
 
+checkstring () {
+
+	echo "Checking if it's already added"
+
+	for server in $servers; do
+		stringtest=$(sudo ssh -n ${server} "iptables -nvL ${fwchain} --line-numbers | grep '${protocol} dpt:${port}' | grep ${string}")
+
+		if [ -n "$stringtest" ]; then
+			echo "    $string is already added"
+			exit 1
+		fi
+	done
+}
+
 convip () {
 
         CONV=({0,1}{0,1}{0,1}{0,1}{0,1}{0,1}{0,1}{0,1})
