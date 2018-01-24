@@ -8,6 +8,7 @@
 
 if [ "$1" = "" ] || [ "$2" = "" ]; then
 	echo "Usage: ./cfc.sh add n.n.n.n/NN '<optional_comment>'"
+	echo "       ./cfc.sh addstring <protocol>:<dport> '<string>'"
 	echo "       ./cfc.sh clean <older_than_number_of_days>"
 	echo "       ./cfc.sh del n.n.n.n/NN"
 	echo "       ./cfc.sh ipsethostinit <server_name>"
@@ -367,6 +368,42 @@ add)
 
 	addipset
 
+	;;
+
+addstring)
+	protocolport=$2
+	string=$3
+	protocol=$(echo ${protocolport} | cut -f1 -d:)
+	port=$(echo ${protocolport} | cut -f2 -d:)
+
+        if [ -z "$string" ]; then
+                echo "String is missing"
+		exit 1
+        fi
+
+	servers+=$(echo " ${ipsetservers}")
+
+	if [ "$precheck" = "true" ]; then
+		checkstring
+	fi
+
+	echo "Connecting to the firewalls:"
+
+	for server in $servers; do
+		echo -n "${server}: "
+		sudo ssh -n ${server} "iptables -I ${fwchain} 4 -j ${action} -p ${protocol} --dport ${port} -mstring --string \"${string}\" --algo bm"
+		sshreturn=$?
+		if [[ $sshreturn -ne 0 ]]; then
+			echo -n "Error"
+			echo -e
+			exit 1
+		else
+			echo -n "Blocked"
+			echo -e
+		fi
+	done
+
+	echo "Done"
 	;;
 
 clean)

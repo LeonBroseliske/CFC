@@ -53,6 +53,16 @@ add:
 
 Adds the given IP(range) to the firewalls with the configured action for all traffic from that source. Makes a comment by default with the current date, you can add an optional comment using single quotes to add a reason or owner of that range as an example. It can also be searched on that comment later on.
 
+addstring:
+
+        cfc.sh addstring <protocol>:<dport> <string>
+
+Adds a string block to iptables for a certain protocol and destination port. A practical example would be blocking a User-Agent destined for a bunch of webservers, so a tcp connection destined for port 80 with the string: Firefox/28.0, all incoming traffic matching that string towards tcp port 80 would be blocked:
+
+	cfc.sh addstring tcp:80 'Firefox/28.0'
+
+Beware, this can have big consequences if the string is not specific enough!
+
 clean:
 
 	cfc.sh clean <older_than_number_of_days>
