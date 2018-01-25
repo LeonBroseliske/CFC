@@ -160,7 +160,7 @@ ipsetfind6 () {
 
 	for ipsetserver in $ipsetservers6; do
 		echo "${ipsetserver}: "
-		sudo ssh -n ${ipsetserver} "ipset list ${ipsetname6} | grep -P '(?<!\d)\d{8}(?!\d)' | grep -i ${ipfiltered}"
+		sudo ssh -n ${ipsetserver} "ipset list ${ipsetname6} | grep -P '(?<!\d)\d{8}(?!\d)' | grep -i \"${ipfiltered}\""
 		sshreturn=$?
 
 		if [[ $sshreturn -ne 0 ]]; then
@@ -360,7 +360,7 @@ find)
 		echo -n "${server}: "
 		echo -e
 		echo " pkts bytes target     prot opt in     out     source               destination         comment"
-		sudo ssh -n ${server} "ip6tables -nvL ${fwchain6} | grep -i ${ipfiltered}"
+		sudo ssh -n ${server} "ip6tables -nvL ${fwchain6} | grep -i \"${ipfiltered}\""
 		sshreturn=$?
 
 		if [[ $sshreturn -ne 0 ]]; then
