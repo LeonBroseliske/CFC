@@ -76,6 +76,12 @@ del:
 
 Deletes the given IP(range)/rule from the firewalls
 
+delstring:
+
+	cfc.sh delstring <protocol>:<dport> <string>
+
+Deletes a string block in iptables for a certain protocol and destination port.
+
 find:
 
 	cfc.sh find <string>

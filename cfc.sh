@@ -11,6 +11,7 @@ if [ "$1" = "" ] || [ "$2" = "" ]; then
 	echo "       ./cfc.sh addstring <protocol>:<dport> '<string>'"
 	echo "       ./cfc.sh clean <older_than_number_of_days>"
 	echo "       ./cfc.sh del n.n.n.n/NN"
+	echo "       ./cfc.sh delstring <protocol>:<dport> '<string>'"
 	echo "       ./cfc.sh ipsethostinit <server_name>"
 	echo "       ./cfc.sh find <string>"
 	echo "       ./cfc.sh findip n.n.n.n/NN"
@@ -465,6 +466,45 @@ del)
 	echo "Done"
 
 	deleteipsetrule
+
+	exit 0
+	;;
+
+delstring)
+	protocolport=$2
+	string=$3
+	protocol=$(echo ${protocolport} | cut -f1 -d:)
+	port=$(echo ${protocolport} | cut -f2 -d:)
+
+	if [ -z "$string" ]; then
+		echo "String is missing"
+		exit 1
+	fi
+
+	echo "Connecting to the firewalls:"
+
+	servers+=$(echo " ${ipsetservers}")
+
+	for server in $servers; do
+		echo -n "${server}: "
+		linenr=$(sudo ssh -n ${server} "iptables -nvL ${fwchain} --line-numbers | grep '${protocol} dpt:${port} STRING match' | grep ${string}" | awk {'print$1'} | head -1)
+
+		if [ -z "$linenr" ]; then
+			echo -n "Not found"
+			echo -e
+		else
+			sudo ssh -n ${server} "iptables -D ${fwchain} ${linenr}"
+			sshreturn=$?
+			echo -n "Removed"
+			echo -e
+		fi
+
+		if [[ $sshreturn -ne 0 ]]; then
+			echo -n "Error"
+			echo -e
+			exit 1
+		fi
+	done
 
 	exit 0
 	;;
