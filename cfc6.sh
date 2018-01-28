@@ -10,6 +10,7 @@ if [ "$1" = "" ] || [ "$2" = "" ]; then
 	echo "Usage: ./cfc6.sh add <IPv6_address_range> '<optional_comment>'"
 	echo "       ./cfc6.sh addstring <protocol>:<dport> '<string>'"
 	echo "       ./cfc6.sh del <IPv6_address_range>"
+	echo "       ./cfc6.sh delstring <protocol>:<dport> '<string>'"
 	echo "       ./cfc6.sh find <string>"
 	echo "       ./cfc6.sh findip <IPv6_address_range>"
 	echo "       ./cfc6.sh ipsethostinit <server_name>"
@@ -394,6 +395,45 @@ del)
 	echo "Done"
 
 	deleteipsetrule6
+
+	exit 0
+	;;
+
+delstring)
+	protocolport=$2
+	string=$3
+	protocol=$(echo ${protocolport} | cut -f1 -d:)
+	port=$(echo ${protocolport} | cut -f2 -d:)
+
+        if [ -z "$string" ]; then
+                echo "String is missing"
+		exit 1
+        fi
+
+	echo "Connecting to the firewalls:"
+
+	servers6+=$(echo " ${ipsetservers6}")
+
+        for server in $servers6; do
+                echo -n "${server}: "
+                linenr=$(sudo ssh -n ${server} "ip6tables -nvL ${fwchain6} --line-numbers | grep '${protocol} dpt:${port} STRING match' | grep ${string}" | awk {'print$1'} | head -1)
+
+                if [ -z "$linenr" ]; then
+                        echo -n "Not found"
+                        echo -e
+                else
+                        sudo ssh -n ${server} "ip6tables -D ${fwchain6} ${linenr}"
+                        sshreturn=$?
+                        echo -n "Removed"
+                        echo -e
+                fi
+
+                if [[ $sshreturn -ne 0 ]]; then
+                        echo -n "Error"
+                        echo -e
+                        exit 1
+                fi
+        done
 
 	exit 0
 	;;
