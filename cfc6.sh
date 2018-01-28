@@ -350,6 +350,8 @@ del)
 find)
 	ipfiltered=$iprange
 
+	servers6+=$(echo " ${ipsetservers6}")
+
         if [ -z "$servers6" ]; then
                 ipsetfind6
         fi
