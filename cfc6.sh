@@ -8,6 +8,7 @@
 
 if [ "$1" = "" ] || [ "$2" = "" ]; then
 	echo "Usage: ./cfc6.sh add <IPv6_address_range> '<optional_comment>'"
+	echo "       ./cfc6.sh addstring <protocol>:<dport> '<string>'"
 	echo "       ./cfc6.sh del <IPv6_address_range>"
 	echo "       ./cfc6.sh find <string>"
 	echo "       ./cfc6.sh findip <IPv6_address_range>"
@@ -321,6 +322,42 @@ add)
 	addipset6
 
 	exit 0
+	;;
+
+addstring)
+	protocolport=$2
+	string=$3
+	protocol=$(echo ${protocolport} | cut -f1 -d:)
+	port=$(echo ${protocolport} | cut -f2 -d:)
+
+        if [ -z "$string" ]; then
+                echo "String is missing"
+		exit 1
+        fi
+
+	servers6+=$(echo " ${ipsetservers6}")
+
+	if [ "$precheck6" = "true" ]; then
+		checkstring6
+	fi
+
+	echo "Connecting to the firewalls:"
+
+	for server in $servers6; do
+		echo -n "${server}: "
+		sudo ssh -n ${server} "ip6tables -I ${fwchain6} 4 -j ${action} -p ${protocol} --dport ${port} -mstring --string \"${string}\" --algo bm"
+		sshreturn=$?
+		if [[ $sshreturn -ne 0 ]]; then
+			echo -n "Error"
+			echo -e
+			exit 1
+		else
+			echo -n "Blocked"
+			echo -e
+		fi
+	done
+
+	echo "Done"
 	;;
 
 del)

@@ -56,6 +56,7 @@ Adds the given IP(range) to the firewalls with the configured action for all tra
 addstring:
 
 	cfc.sh addstring <protocol>:<dport> <string>
+	cfc6.sh addstring <protocol>:<dport> <string>
 
 Adds a string block to iptables for a certain protocol and destination port. A practical example would be blocking a User-Agent destined for a bunch of webservers, so a tcp connection destined for port 80 with the string: Firefox/28.0, all incoming traffic matching that string towards tcp port 80 would be blocked:
 
