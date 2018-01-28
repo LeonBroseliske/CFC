@@ -118,6 +118,20 @@ checkpython () {
 	fi
 }
 
+checkstring6 () {
+
+	echo "Checking if it's already added"
+
+	for server in $servers6; do
+		stringtest=$(sudo ssh -n ${server} "ip6tables -nvL ${fwchain6} --line-numbers | grep '${protocol} dpt:${port}' | grep ${string}")
+
+		if [ -n "$stringtest" ]; then
+			echo "    $string is already added"
+			exit 1
+		fi
+	done
+}
+
 deleteipsetrule6 () {
 
 	echo "Connecting to the IPSET firewalls:"
