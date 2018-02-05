@@ -515,6 +515,8 @@ ipsethostinit)
         ;;
 
 last)
+	servers6+=$(echo " ${ipsetservers6}")
+
         if [ -z "$servers6" ]; then
                 lastipset6
         fi
